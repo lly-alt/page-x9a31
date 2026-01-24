@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>测一测｜你最适合生活的城市（56城）</title>
+  <style>
+    :root{
+      --bg1:#0b1220;
+      --bg2:#0a0f18;
+      --card:rgba(255,255,255,.085);
+      --border:rgba(255,255,255,.12);
+      --text:#f2f4f8;
+      --muted:rgba(242,244,248,.74);
+      --muted2:rgba(242,244,248,.58);
+      --btn:rgba(255,255,255,.09);
+      --btnHover:rgba(255,255,255,.14);
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; min-height:100vh; color:var(--text);
+      background:
+        radial-gradient(900px 520px at 18% 10%, rgba(120,160,255,.22), transparent 60%),
+        radial-gradient(760px 460px at 88% 18%, rgba(255,180,210,.14), transparent 55%),
+        radial-gradient(760px 560px at 55% 95%, rgba(140,255,220,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .wrap{
+      max-width:900px;
+      margin:0 auto;
+      padding:calc(18px + env(safe-area-inset-top)) 14px calc(70px + env(safe-area-inset-bottom));
+    }
+    .card{
+      background:linear-gradient(180deg, var(--card), rgba(255,255,255,.05));
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    h1{ margin:0; font-size:clamp(18px, 4.8vw, 22px); letter-spacing:.2px; }
+    .sub{ margin-top:6px; font-size:clamp(13px, 3.6vw, 14px); line-height:1.65; color:var(--muted); }
+    .pill{
+      font-size:12px; color:var(--muted);
+      padding:6px 10px; border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      align-self:flex-start;
+    }
+    .progress{
+      height:10px; border-radius:999px; overflow:hidden;
+      background:rgba(255,255,255,.1);
+      margin:14px 0 18px;
+    }
+    .bar{ height:100%; width:0%; background:rgba(255,255,255,.8); transition:width .25s ease; }
+
+    .q{ font-size:clamp(16px, 4.7vw, 18px); line-height:1.75; margin:6px 0 14px; }
+    .opts{ display:grid; gap:12px; }
+    button.opt{
+      width:100%;
+      padding:14px 14px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background:var(--btn);
+      color:var(--text);
+      font-size:clamp(14px, 3.9vw, 15px);
+      line-height:1.55;
+      text-align:left;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button.opt:hover{ background:var(--btnHover); }
+    button.opt:active{ transform:scale(.995); }
+
+    .actions{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+    .btn{
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      font-size:13px;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:hover{ background:rgba(255,255,255,.10); }
+    .btn[disabled]{ opacity:.45; cursor:not-allowed; }
+
+    .section{ margin-top:14px; }
+    .grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+    @media (min-width:760px){ .grid{ grid-template-columns:1fr 1fr; } }
+    .box{
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px 14px 12px;
+    }
+    .k{ font-size:13px; color:var(--muted); margin-bottom:10px; }
+    .cityName{ font-size:clamp(22px, 6vw, 26px); line-height:1.25; margin:2px 0 6px; }
+    .tags{ margin-top:10px; }
+    .tag{
+      display:inline-block;
+      padding:6px 10px;
+      margin:4px 6px 0 0;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+    }
+
+    .prose{ max-width:44rem; }
+    .p{
+      margin:0 0 10px;
+      font-size:clamp(14px, 3.9vw, 16px);
+      line-height:1.85;
+      letter-spacing:.1px;
+      color:rgba(242,244,248,.92);
+    }
+    .p.soft{ color:var(--muted2); }
+
+    .softNote{
+      color:var(--muted2);
+      font-size:12px;
+      line-height:1.55;
+      margin-top:12px;
+    }
+
+    /* 雷达图区 */
+    .radarWrap{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:stretch;
+    }
+    .radarCanvasBox{
+      flex: 1 1 320px;
+      min-width: 280px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:rgba(255,255,255,.05);
+      padding:10px;
+    }
+    canvas#radar{
+      width:100%;
+      max-width:420px;
+      aspect-ratio: 1/1;
+      height:auto;
+      display:block;
+    }
+    .radarLegend{
+      flex: 1 1 240px;
+      min-width: 220px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:rgba(255,255,255,.05);
+      padding:12px 12px 8px;
+    }
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:8px 0;
+      border-bottom:1px dashed rgba(255,255,255,.12);
+    }
+    .row:last-child{ border-bottom:none; }
+    .dimName{ font-size:13px; color:rgba(242,244,248,.9); }
+    .dimHint{ font-size:12px; color:var(--muted2); }
+    .pct{ font-variant-numeric: tabular-nums; font-size:13px; color:rgba(242,244,248,.9); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card" id="app"></div>
+  </div>
+
+<script>
+/**
+ * 8维度匹配（生活方式）
+ * pace 节奏（慢 ↔ 快）
+ * climate 气候（冷 ↔ 暖）
+ * density 密度（松 ↔ 挤）
+ * drive 驱动力（生活 ↔ 事业）
+ * nature 自然依赖（城市也行 ↔ 自然续命）
+ * social 社交电量（安静 ↔ 热闹）
+ * aesthetics 氛围偏好（功能 ↔ 氛围）
+ * cost 成本耐受（低压 ↔ 能扛）
+ */
+const DIM = ["pace","climate","density","drive","nature","social","aesthetics","cost"];
+const DIM_TEXT = {
+  pace: ["慢一点","快一点"],
+  climate: ["偏冷","偏暖"],
+  density: ["松一点","密一点"],
+  drive: ["生活优先","事业优先"],
+  nature: ["自然无所谓","自然很重要"],
+  social: ["偏安静","偏热闹"],
+  aesthetics: ["偏功能","偏氛围"],
+  cost: ["压力小","能扛成本"]
+};
+
+// 16题
+const QUESTIONS = [
+  q("先来点轻的。你更喜欢哪种日常节奏？",
+    opt("事情推进得快一点，会更安心", { pace:+2, drive:+1 }),
+    opt("留白多一点，心会更舒服", { pace:-2, drive:-1, aesthetics:+1 })
+  ),
+  q("对天气的偏好更像哪边？",
+    opt("更爱偏暖的阳光和明亮", { climate:+2 }),
+    opt("更爱清爽冷凉、四季分明", { climate:-2 })
+  ),
+  q("城市“密度”这件事，真实感受是？",
+    opt("热闹一点也行，图的就是方便", { density:+2, nature:-1, cost:+1 }),
+    opt("别太挤更重要，空间感能救命", { density:-2, nature:+1, cost:-1 })
+  ),
+  q("如果只能选一个优先级，会更在意？",
+    opt("机会、资源、上升通道", { drive:+2, pace:+1, cost:+1 }),
+    opt("生活质感、日常幸福感", { drive:-2, aesthetics:+1, pace:-1 })
+  ),
+  q("社交电量大概属于哪种？",
+    opt("有点热闹更来劲，城市声浪能充电", { social:+2, density:+1 }),
+    opt("更需要安静和边界，清净才回血", { social:-2, density:-1 })
+  ),
+  q("周末更常出现的画面是？",
+    opt("出门逛逛，展览、咖啡、运动都行", { social:+1, pace:+1, aesthetics:+1 }),
+    opt("在家恢复，做饭、整理、看剧更对味", { social:-1, pace:-1 })
+  ),
+  q("通勤这件事，底线大概是？",
+    opt("能短就短，最好半小时内搞定", { pace:+1, density:+1 }),
+    opt("远点也行，只要环境真舒服", { pace:-1, nature:+1, aesthetics:+1 })
+  ),
+  q("对秩序和规则的态度更像？",
+    opt("有规则反而更踏实", { pace:+1, aesthetics:-1 }),
+    opt("自由一点才像在生活", { aesthetics:+2, pace:-1 })
+  ),
+  q("消费和成本压力，倾向是？",
+    opt("贵点没关系，体验值更重要", { cost:+2, aesthetics:+1 }),
+    opt("压力小更重要，性价比优先", { cost:-2 })
+  ),
+  q("自然对情绪的作用大吗？",
+    opt("挺大的，海、山、绿地真的能救人", { nature:+2, aesthetics:+1 }),
+    opt("还好，有当然更好，没有也能过", { nature:-2, density:+1 })
+  ),
+  q("更喜欢哪种城市气质？",
+    opt("现代、摩登、效率感强", { pace:+1, aesthetics:-1 }),
+    opt("人文、复古、慢一点也迷人", { pace:-1, aesthetics:+2 })
+  ),
+  q("对变化的耐受大概是？",
+    opt("变化多才不无聊，越新越兴奋", { pace:+1, drive:+1 }),
+    opt("稳定更重要，别总被折腾", { pace:-1, drive:-1 })
+  ),
+  q("工作和生活更希望怎么摆？",
+    opt("边界清晰，工作归工作", { drive:-1, social:-1 }),
+    opt("能交织一点，机会会自然流动", { drive:+1, social:+1 })
+  ),
+  q("更喜欢的夜晚是？",
+    opt("街上有灯有声音，有活力才安心", { social:+1, pace:+1 }),
+    opt("安静一点，回家就能放松", { social:-1, pace:-1 })
+  ),
+  q("安全感更多来自？",
+    opt("流程清晰、秩序稳定", { pace:+1, aesthetics:-1 }),
+    opt("包容多元、自由度高", { aesthetics:+2, pace:-1 })
+  ),
+  q("最后一问，直觉更想把自己放进？",
+    opt("机会密度更高的城市", { drive:+2, density:+1, cost:+1 }),
+    opt("长期更舒服、压力更小的地方", { drive:-2, density:-1, cost:-1 })
+  ),
+];
+
+function q(t, a, b){ return { t, a, b }; }
+function opt(text, d){ return { text, d }; }
+
+/* ===== 城市：56个（向量画像 + 标签 + 三句小片段）===== */
+const CITY_PROFILES = [
+  // 北美 12
+  city("纽约 New York",
+    v({pace:+2, climate:-1, density:+2, drive:+2, nature:-1, social:+2, aesthetics:0, cost:+2}),
+    ["机会密度","快节奏","大都市","社交活力"],
+    ["天色暗下来但城市没睡，灯光把街角照得很亮。","步子会不自觉变快，却不慌，因为一切都在推进。","在这里，努力更容易被看见。"]
+  ),
+  city("洛杉矶 Los Angeles",
+    v({pace:+1, climate:+2, density:+1, drive:+1, nature:+1, social:+1, aesthetics:+1, cost:+2}),
+    ["阳光","多元生活方式","城市+自然","松弛感"],
+    ["下午的光很暖，空气像被晒软了。","先把生活过好，再慢慢去追更远的事。","这座城市像在说：别急，慢一点也会到。"]
+  ),
+  city("旧金山 San Francisco",
+    v({pace:+1, climate:0, density:+1, drive:+2, nature:+1, social:0, aesthetics:+1, cost:+2}),
+    ["科技氛围","海湾自然","职业机会","生活质感"],
+    ["风有点凉，但不烦人，反而让人清醒。","在“想做点事”的氛围里，会更坚定。","忙完一天走到海湾边，心也会跟着安静。"]
+  ),
+  city("圣地亚哥 San Diego",
+    v({pace:0, climate:+2, density:0, drive:0, nature:+2, social:0, aesthetics:+1, cost:+1}),
+    ["海边慢生活","自然续命","舒适长期","温柔日常"],
+    ["海风很轻，像把肩上的紧绷吹散。","日子不需要很用力，也能很舒服。","这里适合把状态慢慢养回来。"]
+  ),
+  city("西雅图 Seattle",
+    v({pace:0, climate:-1, density:+1, drive:+1, nature:+1, social:-1, aesthetics:0, cost:+1}),
+    ["克制安静","舒服又有资源","自然不远","长期感"],
+    ["天有点灰，但不压抑，反而更专注。","安静地把事情做好，不用一直解释自己。","下班路上绕进绿意里，心就松一截。"]
+  ),
+  city("温哥华 Vancouver",
+    v({pace:0, climate:0, density:0, drive:0, nature:+2, social:-1, aesthetics:+1, cost:+1}),
+    ["自然与城市平衡","慢而不无聊","长期友好","舒适"],
+    ["走几步就能看见树和水，像是城市在照顾人。","生活不催促，但也不会让人发霉。","很适合把日子过得稳稳的、柔柔的。"]
+  ),
+  city("多伦多 Toronto",
+    v({pace:+1, climate:-1, density:+1, drive:+1, nature:0, social:+1, aesthetics:0, cost:+1}),
+    ["国际化","机会稳定","节奏适中","可长期"],
+    ["这座城市很“正经”，但不冷。","该有的资源都有，生活也能慢慢落地。","适合认真生活，也适合慢慢变强。"]
+  ),
+  city("蒙特利尔 Montreal",
+    v({pace:0, climate:-2, density:0, drive:-1, nature:0, social:0, aesthetics:+2, cost:0}),
+    ["人文审美","慢节奏","文艺生活","有故事"],
+    ["夜里灯光有点旧，但很好看。","在细节里被治愈，而不是被效率催着跑。","这座城市像一封慢慢读的信。"]
+  ),
+  city("芝加哥 Chicago",
+    v({pace:+1, climate:-2, density:+1, drive:+1, nature:-1, social:+1, aesthetics:0, cost:0}),
+    ["大城市质感","稳定机会","实用主义","不至于过度挤压"],
+    ["风会大一点，但人更实在。","在大城市里找到秩序感，也不必过度紧绷。","日子走得稳，比什么都重要。"]
+  ),
+  city("奥斯汀 Austin",
+    v({pace:+1, climate:+1, density:0, drive:+1, nature:0, social:+1, aesthetics:+1, cost:0}),
+    ["创意与机会","节奏轻快","生活友好","可成长"],
+    ["这里的人没那么急，但都在做事。","生活像开着窗，有风也有光。","适合一边生活，一边把路走出来。"]
+  ),
+  city("波士顿 Boston",
+    v({pace:+1, climate:-2, density:+1, drive:+1, nature:-1, social:-1, aesthetics:0, cost:+1}),
+    ["长期主义","路径清晰","安静认真","更确定"],
+    ["节奏不喧闹，但很有方向。","会喜欢那种“把事情做对”的踏实。","日子像在打底，越走越稳。"]
+  ),
+  city("迈阿密 Miami",
+    v({pace:+1, climate:+2, density:+1, drive:0, nature:+1, social:+2, aesthetics:+1, cost:+2}),
+    ["热情","夜晚活力","社交高能","海边城市感"],
+    ["夜色一来，城市像忽然醒了。","想热闹时不缺舞台，想安静也能退回海风里。","这里的明亮，会把人带得更轻快。"]
+  ),
+
+  // 欧洲 20
+  city("伦敦 London",
+    v({pace:+2, climate:-1, density:+2, drive:+2, nature:-1, social:+1, aesthetics:0, cost:+2}),
+    ["全球资源","机会密度","强城市感","效率"],
+    ["天有点阴，但城市很有劲。","会被资源和机会推着往前走，越走越清醒。","像是站在更大的棋盘上。"]
+  ),
+  city("巴黎 Paris",
+    v({pace:0, climate:-1, density:+1, drive:-1, nature:0, social:0, aesthetics:+2, cost:+2}),
+    ["审美与人文","生活方式","慢一点的浪漫","有氛围"],
+    ["街角的光会让脚步慢下来。","很多美不是用力营造的，是日常自然带出来的。","这里更像在教：生活也可以很温柔。"]
+  ),
+  city("柏林 Berlin",
+    v({pace:0, climate:-1, density:+1, drive:0, nature:0, social:+1, aesthetics:+2, cost:0}),
+    ["自由","多元","创意表达","不被定义"],
+    ["不必解释自己是什么样的人。","想安静就安静，想张扬也不会被盯着看。","这座城市给的是一种松弛的自由。"]
+  ),
+  city("阿姆斯特丹 Amsterdam",
+    v({pace:+1, climate:-1, density:+1, drive:0, nature:+1, social:0, aesthetics:+1, cost:+1}),
+    ["舒服又高效","秩序感","日常便利","松弛平衡"],
+    ["一切都很顺，顺到让人不想抱怨。","在秩序感里放松，而不是被束缚。","日子像被好好收纳过，清爽又可爱。"]
+  ),
+  city("巴塞罗那 Barcelona",
+    v({pace:+1, climate:+2, density:+1, drive:-1, nature:+1, social:+1, aesthetics:+2, cost:+1}),
+    ["阳光","美感","生活热度","城市海风"],
+    ["阳光把墙面照得发亮，连影子都好看。","会更愿意出门，把生活过成一段段小片段。","热度刚好，不吵，也不冷。"]
+  ),
+  city("马德里 Madrid",
+    v({pace:+1, climate:+2, density:+1, drive:0, nature:0, social:+2, aesthetics:+1, cost:+1}),
+    ["热烈社交","城市活力","不闷","日常很会过"],
+    ["会发现快乐是可以练出来的。","晚一点也没关系，生活不会因此失败。","这里的热情，会让人更敢松一口气。"]
+  ),
+  city("米兰 Milan",
+    v({pace:+1, climate:0, density:+1, drive:+1, nature:-1, social:0, aesthetics:+2, cost:+2}),
+    ["审美效率并存","职业与品味","讲究","精致实用"],
+    ["会在“讲究”里变得更利落。","不是浮夸，是把日常过得更好看一点。","努力的样子，也更容易显得有质感。"]
+  ),
+  city("佛罗伦萨 Florence",
+    v({pace:-1, climate:+1, density:-1, drive:-2, nature:+1, social:-1, aesthetics:+2, cost:+1}),
+    ["慢生活","人文浸润","心会安静","细水长流"],
+    ["时间像被放慢了，连呼吸都更轻。","在旧墙与柔光里，慢慢把自己捡回来。","这里适合把生活过成长期主义。"]
+  ),
+  city("罗马 Rome",
+    v({pace:0, climate:+2, density:+1, drive:-1, nature:0, social:+1, aesthetics:+2, cost:+1}),
+    ["生活气息","历史与日常","热闹但不冷","很会生活"],
+    ["这里很吵，但那种吵不让人讨厌。","在热闹里找到生活感，在生活感里松下来。","日子不必完美，也可以很好。"]
+  ),
+  city("维也纳 Vienna",
+    v({pace:-1, climate:-1, density:0, drive:-1, nature:+1, social:-1, aesthetics:+1, cost:+1}),
+    ["长期友好","稳定舒适","慢一点","不费力"],
+    ["会喜欢这里的稳定：不惊艳，但很可靠。","生活像被好好安排过，节奏不催人。","适合长期住，适合慢慢变好。"]
+  ),
+  city("布拉格 Prague",
+    v({pace:-1, climate:-1, density:0, drive:-1, nature:+1, social:-1, aesthetics:+2, cost:0}),
+    ["浪漫但克制","文艺安静","有分寸","舒服"],
+    ["灯光有点旧，却很温柔。","在安静里更敏感，也更容易被触动。","这座城市像在替情绪放慢。"]
+  ),
+  city("苏黎世 Zurich",
+    v({pace:+1, climate:-1, density:0, drive:+2, nature:+1, social:-1, aesthetics:0, cost:+2}),
+    ["秩序与高标准","非常确定","高成本但换稳定","清晰"],
+    ["生活像被校准过：清晰、准确。","在确定性里更专注，也更安心。","贵是贵，但它把很多麻烦挡掉了。"]
+  ),
+  city("慕尼黑 Munich",
+    v({pace:+1, climate:-1, density:0, drive:+1, nature:+1, social:-1, aesthetics:0, cost:+2}),
+    ["稳扎稳打","规则感","生活质量","很可靠"],
+    ["会感觉这座城市很踏实。","不需要演，也不需要拼命证明什么。","把日子过稳，就是这里给的安全感。"]
+  ),
+  city("哥本哈根 Copenhagen",
+    v({pace:0, climate:-2, density:0, drive:-1, nature:+1, social:-1, aesthetics:+1, cost:+2}),
+    ["舒服的秩序","低噪音","幸福感","松弛但不散"],
+    ["安静不是冷，是低噪音的体面。","在这座城市里慢慢把心放平。","舒服到让人想长期待下去。"]
+  ),
+  city("斯德哥尔摩 Stockholm",
+    v({pace:0, climate:-2, density:0, drive:0, nature:+2, social:-1, aesthetics:+1, cost:+2}),
+    ["清爽","自然很近","空间感","安静的高级"],
+    ["空气很干净，风也很干净。","在自然和空间感里慢慢回血。","安静不无聊，反而很高级。"]
+  ),
+  city("赫尔辛基 Helsinki",
+    v({pace:-1, climate:-2, density:-1, drive:-1, nature:+2, social:-2, aesthetics:+1, cost:+1}),
+    ["极简","边界感","安静到心里","适合独处充电"],
+    ["会更清楚自己想要什么，不想要什么。","独处不是孤单，是恢复。","这座城市像把世界的音量调低了。"]
+  ),
+  city("里斯本 Lisbon",
+    v({pace:-1, climate:+2, density:0, drive:-1, nature:+1, social:0, aesthetics:+2, cost:+1}),
+    ["温暖慢生活","审美舒服","海风日常","不紧张"],
+    ["阳光很软，时间也很软。","会开始更愿意善待自己。","海风吹过来那一下，很多事就没那么重了。"]
+  ),
+  city("爱丁堡 Edinburgh",
+    v({pace:-1, climate:-2, density:-1, drive:-1, nature:+1, social:-2, aesthetics:+2, cost:+1}),
+    ["安静人文","有故事","低社交也自在","慢慢过"],
+    ["夜里很静，静到能听见自己的想法。","在故事感里会变温柔。","适合慢慢住，慢慢喜欢。"]
+  ),
+
+  // 东亚/东南亚 14
+  city("东京 Tokyo",
+    v({pace:+2, climate:0, density:+2, drive:+1, nature:-1, social:0, aesthetics:-1, cost:+2}),
+    ["效率","秩序","日常可控","认真生活"],
+    ["生活像被上好发条，顺得让人安心。","在秩序里省下很多情绪消耗。","忙完一天回到夜色里，反而更踏实。"]
+  ),
+  city("横滨 Yokohama",
+    v({pace:+1, climate:0, density:+1, drive:0, nature:0, social:-1, aesthetics:0, cost:+1}),
+    ["靠近资源但更松","生活舒服","节奏适中","不压迫"],
+    ["离繁华很近，但日常不需要一直紧绷。","走路的节奏更舒服，呼吸也更顺。","适合把生活过稳，也过好。"]
+  ),
+  city("京都 Kyoto",
+    v({pace:-1, climate:0, density:0, drive:-2, nature:+1, social:-2, aesthetics:+2, cost:+1}),
+    ["强人文","慢生活","审美浸润","安静有分寸"],
+    ["光落在街角时，会忍不住放慢。","这里的美不是惊艳，是耐看。","在安静里，把心养得更细。"]
+  ),
+  city("首尔 Seoul",
+    v({pace:+2, climate:-1, density:+2, drive:+1, nature:-1, social:+2, aesthetics:0, cost:+1}),
+    ["快节奏","社交热度","潮流密度","能量型"],
+    ["夜晚的城市像一直在发光。","会被热度和节奏带起来，变得更有劲。","想要新鲜感时，这里不会让人失望。"]
+  ),
+  city("釜山 Busan",
+    v({pace:0, climate:-1, density:0, drive:-1, nature:+2, social:0, aesthetics:0, cost:0}),
+    ["海边城市","自然续命","生活感","不紧绷"],
+    ["海风一吹，人就松下来。","更愿意把生活过得真实一点。","这里适合恢复，也适合慢慢爱上日常。"]
+  ),
+  city("上海 Shanghai",
+    v({pace:+2, climate:+1, density:+2, drive:+2, nature:-1, social:+1, aesthetics:0, cost:+2}),
+    ["机会密度","资源","强城市场","快"],
+    ["路灯亮起来的时候，城市还在认真运转。","那种“很多事能推进”的顺畅感，会让人上头。","努力更容易有回声，这是它很迷人的地方。"]
+  ),
+  city("深圳 Shenzhen",
+    v({pace:+2, climate:+2, density:+2, drive:+2, nature:-1, social:+1, aesthetics:-1, cost:+1}),
+    ["效率","上升通道","很拼但直接","机会主义"],
+    ["这座城市说话很直接：想做就做。","在高速度里会更果断，也更清醒。","有点累，但成长会很快。"]
+  ),
+  city("香港 Hong Kong",
+    v({pace:+2, climate:+2, density:+2, drive:+2, nature:-1, social:+1, aesthetics:0, cost:+2}),
+    ["极致密度","金融资源","快","强"],
+    ["电梯、地铁、街道都很快。","会被密度推着往前走，忙但不拖沓。","夜景一亮，会突然觉得自己也挺能扛。"]
+  ),
+  city("新加坡 Singapore",
+    v({pace:+1, climate:+2, density:+2, drive:+2, nature:-1, social:0, aesthetics:-1, cost:+2}),
+    ["秩序","国际化","确定性","高标准"],
+    ["一切都很规整，规整到让人放心。","确定性会让焦虑少掉一半。","生活像被打理得很干净，清爽而稳定。"]
+  ),
+  city("曼谷 Bangkok",
+    v({pace:+1, climate:+2, density:+1, drive:0, nature:0, social:+2, aesthetics:+1, cost:0}),
+    ["热烈","好玩","社交电量","不无聊"],
+    ["城市很热，但会觉得活着。","想快乐的时候，这里很会配合。","夜晚一来，很多烦恼就变轻了。"]
+  ),
+  city("清迈 Chiang Mai",
+    v({pace:-2, climate:+2, density:-2, drive:-2, nature:+2, social:-1, aesthetics:+1, cost:-1}),
+    ["慢到松弛","自然","低压力","适合养自己"],
+    ["时间在这里走得很慢。","睡得更好，也更会照顾自己。","适合把焦虑放下，先把人养回来。"]
+  ),
+  city("巴厘岛 Bali",
+    v({pace:-2, climate:+2, density:-2, drive:-2, nature:+2, social:0, aesthetics:+1, cost:0}),
+    ["度假式生活","彻底放松","自然","心会软下来"],
+    ["风里有海的味道。","会突然不想再逼自己那么紧。","这里像一句话：先活着，再去追别的。"]
+  ),
+  city("吉隆坡 Kuala Lumpur",
+    v({pace:0, climate:+2, density:+1, drive:0, nature:0, social:+1, aesthetics:0, cost:0}),
+    ["便利","成本可控","不太累","中间型"],
+    ["生活不太为难人。","该有的便利都有，压力也没那么尖锐。","适合把日子过稳，再慢慢做选择。"]
+  ),
+  city("台北 Taipei",
+    v({pace:+1, climate:+1, density:+1, drive:0, nature:0, social:0, aesthetics:+1, cost:+1}),
+    ["舒服的人文城市","不极端","好生活","温柔日常"],
+    ["会觉得这里很温柔。","不需要很用力，日常也能过得很好。","它让人放松的方式，是把生活照顾得刚刚好。"]
+  ),
+
+  // 大洋洲&其他 10
+  city("悉尼 Sydney",
+    v({pace:+1, climate:+2, density:0, drive:0, nature:+2, social:+1, aesthetics:+1, cost:+2}),
+    ["阳光","自然很近","生活方式","舒服但贵"],
+    ["阳光很亮，会更愿意出门。","自然离得很近，情绪更容易被安抚。","贵一点，但日子更像想要的样子。"]
+  ),
+  city("墨尔本 Melbourne",
+    v({pace:0, climate:0, density:0, drive:0, nature:+1, social:0, aesthetics:+2, cost:+2}),
+    ["人文与审美","慢热","适合长期","舒服"],
+    ["会慢慢喜欢上这里，不是一下子。","很多美藏在日常里，越住越懂。","适合长期生活，也适合慢慢变温柔。"]
+  ),
+  city("布里斯班 Brisbane",
+    v({pace:0, climate:+2, density:-1, drive:-1, nature:+2, social:0, aesthetics:0, cost:+1}),
+    ["温暖","自然","长期舒服","压力更小"],
+    ["天是暖的，人也更松。","生活会更健康，也更舒服。","适合长住，适合稳定地变好。"]
+  ),
+  city("奥克兰 Auckland",
+    v({pace:-1, climate:0, density:-1, drive:-1, nature:+2, social:-1, aesthetics:0, cost:+1}),
+    ["空间感","自然","安静","慢慢过"],
+    ["会喜欢这里的空间感。","自然像背景音，一直在。","日子不需要很热闹，也能很踏实。"]
+  ),
+  city("皇后镇 Queenstown",
+    v({pace:-2, climate:-1, density:-2, drive:-2, nature:+2, social:-1, aesthetics:+1, cost:+1}),
+    ["自然拉满","很治愈","安静","喘口气"],
+    ["空气很干净，像把人洗了一遍。","在自然里彻底停下来。","适合喘口气，也适合重新开始。"]
+  ),
+  city("迪拜 Dubai",
+    v({pace:+2, climate:+2, density:+1, drive:+2, nature:-2, social:+1, aesthetics:0, cost:+2}),
+    ["机会与消费","强烈","快","高成本"],
+    ["这座城市很强烈，很直接。","在高刺激里会更有野心。","贵，但它给的是一种“更大”的生活。"]
+  ),
+  city("特拉维夫 Tel Aviv",
+    v({pace:+1, climate:+2, density:+1, drive:+1, nature:+1, social:+1, aesthetics:0, cost:+2}),
+    ["海边活力","社交","机会","明亮"],
+    ["海风和热度是同时存在的。","在明亮里更敢表达自己。","白天做事，晚上生活，这里很会切换。"]
+  ),
+  city("伊斯坦布尔 Istanbul",
+    v({pace:+1, climate:+1, density:+1, drive:0, nature:0, social:+1, aesthetics:+2, cost:0}),
+    ["文化浓度","故事感","烟火","有味道"],
+    ["空气里有故事。","在烟火里会觉得生活很真实。","不完美，但很迷人，像会让人上瘾的氛围。"]
+  ),
+  city("开普敦 Cape Town",
+    v({pace:0, climate:+2, density:-1, drive:-1, nature:+2, social:0, aesthetics:+1, cost:0}),
+    ["自然与日常","松弛","景色","很会过"],
+    ["风景像贴在生活里。","会更愿意把日子过成喜欢的样子。","自然一靠近，人就没那么急了。"]
+  ),
+  city("雷克雅未克 Reykjavik",
+    v({pace:-2, climate:-2, density:-2, drive:-2, nature:+2, social:-2, aesthetics:+1, cost:+2}),
+    ["极冷极静","自然","边界感","独处友好"],
+    ["世界很安静，安静到能听见自己。","在边界感里恢复，而不是变孤独。","适合独处，也适合把心慢慢理顺。"]
+  ),
+];
+
+// helper
+function city(name, vec, tags, scene){ return { name, vec, tags, scene }; }
+function v(o){ return Object.fromEntries(DIM.map(k => [k, o[k] ?? 0])); }
+
+/* ===== 评分与匹配 ===== */
+let idx = 0;
+let score = Object.fromEntries(DIM.map(k => [k, 0]));
+QUESTIONS.forEach(x => { x._picked = null; });
+
+// 每个维度的“理论最大绝对值”，用于把分数映射到 0~100%
+const MAX_ABS = computeMaxAbs();
+
+function computeMaxAbs(){
+  const m = Object.fromEntries(DIM.map(k => [k, 0]));
+  for(const qu of QUESTIONS){
+    for(const side of [qu.a, qu.b]){
+      for(const k of DIM){
+        m[k] += Math.abs(side.d[k] ?? 0);
+      }
+    }
+  }
+  // 这样会稍微偏大（因为A/B不可能同时选），但更稳更宽松
+  // 为了更贴近真实，把它再除以2
+  for(const k of DIM) m[k] = Math.max(1, Math.round(m[k]/2));
+  return m;
+}
+
+function addDelta(delta){
+  for(const k of DIM) score[k] += (delta[k] ?? 0);
+}
+
+function normalize(v){
+  const arr = DIM.map(k => v[k] || 0);
+  const norm = Math.sqrt(arr.reduce((s,x)=>s+x*x,0)) || 1;
+  const out = {};
+  DIM.forEach((k,i)=>out[k]=arr[i]/norm);
+  return out;
+}
+
+function dot(a,b){
+  let s=0;
+  for(const k of DIM) s += (a[k]||0)*(b[k]||0);
+  return s;
+}
+
+function pickCity(){
+  const sv = normalize(score);
+  let best=null, bestScore=-Infinity;
+  for(const c of CITY_PROFILES){
+    const cv = normalize(c.vec);
+    const s = dot(sv, cv);
+    if(s>bestScore){ bestScore=s; best=c; }
+  }
+  return { best, sv };
+}
+
+/* ===== 结果文案：保留“你”，但不会满屏 ===== */
+function tonePick(v, pos, neg, mid){
+  if (v > 0.35) return pos;
+  if (v < -0.35) return neg;
+  return mid;
+}
+
+function portrait3(sv){
+  const l1 = tonePick(
+    sv.pace,
+    "你其实挺吃“推进感”的。事情能往前走，心就会稳下来，整个人也更清醒。",
+    "你更在意留白。日子别被塞满，才有空间把情绪放平，把状态养好。",
+    "你不太走极端。效率要，但舒服也要，很多时候会本能地找那个“刚刚好”。"
+  );
+  const l2 = tonePick(
+    sv.drive,
+    "你会被机会密度吸引。不是想卷到发光，是喜欢努力有回声、路径更清楚的感觉。",
+    "你更在乎日常幸福感。好好吃饭、好好睡觉、不紧绷，比任何宏大叙事都可靠。",
+    "你能在机会和生活之间做平衡。不是中庸，是知道长期怎么过才不会把自己耗空。"
+  );
+  const l3 = tonePick(
+    sv.social,
+    "你不怕热闹，甚至会被城市的声浪带起来。想社交的时候，有地方可去这件事很重要。",
+    "你需要安静和边界。独处对你来说不是孤单，是回血，音量一大就容易累。",
+    "你对社交的需求很现实。人太多会累，但太冷也不行，你更想要进退自如。"
+  );
+  return [l1,l2,l3];
+}
+
+function whyThisCity(best, sv){
+  const cityCN = best.name.split(" ")[0];
+
+  const a = tonePick(
+    sv.pace,
+    `这座城市的节奏会更贴合你。${cityCN}的好在于，生活更容易顺起来，很多事不用反复拉扯。`,
+    `如果你最近更想慢一点，${cityCN}会比较友好。它不太催你，反而给你时间把状态找回来。`,
+    `${cityCN}偏“刚好”。既不会一直催你跑，也不会让你停在原地发呆，日常会更稳。`
+  );
+
+  const b = tonePick(
+    sv.nature,
+    "你对自然是有需求的。状态不好时，风、树、海、山真的能把人拉回来，这里更容易给你出口。",
+    "你对自然依赖不算高，更在意便利和省心。能把生活打理顺，你就能安心很多。",
+    "你对自然的要求不极端。有更好，没有也能过；这里通常能把分寸拿得不错。"
+  );
+
+  const c = tonePick(
+    sv.aesthetics,
+    "你其实很吃氛围。街角的光、走路的节奏、店铺的窗，都会影响心情。这里更容易让人变柔软。",
+    "你更看重清晰和效率。少一点花哨，多一点确定感，这里能省掉很多情绪消耗。",
+    "你要的不是“惊艳”，是“耐看”。只要不粗糙，日子就会越过越顺。"
+  );
+
+  return [a,b,c];
+}
+
+function threeThings(best, sv){
+  const things = [];
+  const tags = new Set(best.tags);
+  const has = (arr)=>arr.some(t=>tags.has(t));
+
+  if(sv.drive > 0.25 && has(["机会密度","全球资源","资源","职业机会","上升通道","科技氛围","金融资源"])){
+    things.push("这里的机会密度挺高。你想推进的时候，更容易找到路，也更容易听见回声。");
+  }
+  if(sv.pace > 0.25 && has(["效率","快节奏","强城市场","秩序","日常可控"])){
+    things.push("它很“顺”。很多事不用反复纠结，生活会更容易往前走。");
+  }
+  if(sv.nature > 0.25 && has(["自然续命","自然很近","海边慢生活","城市海风","景色","自然","空间感"])){
+    things.push("自然离得不远。情绪紧的时候，走出去一小段路，心就能松一点。");
+  }
+  if(sv.aesthetics > 0.25 && has(["审美与人文","人文审美","生活方式","慢一点的浪漫","有氛围","文化浓度","文艺生活","有故事"])){
+    things.push("它的质感很耐看。不是用力营造的精致，而是日常自带的好看。");
+  }
+  if(sv.social > 0.25 && has(["社交活力","热烈社交","夜晚活力","好玩","热情","社交高能"])){
+    things.push("它的热度刚好。你想热闹时不缺去处，想安静时也能退回自己的节奏。");
+  }
+
+  const fallback = [
+    "这里不太为难人。你只要照着自己的节奏过，日子会越来越顺。",
+    "它很适合长期住。不是一下子惊艳，是越住越舒服的那种。",
+    "在这里生活会更有落地感。不用一直撑着，也不会总是漂着。"
+  ];
+  while(things.length < 3) things.push(fallback.shift());
+  return things.slice(0,3);
+}
+
+function asParagraphs(lines, soft=false){
+  const cls = soft ? "p soft" : "p";
+  return `<div class="prose">${lines.map(x=>`<p class="${cls}">${x}</p>`).join("")}</div>`;
+}
+
+/* ===== 把每个维度分数映射到 0~100（方便画图、显示百分比） ===== */
+function toPercentByDim(){
+  const out = {};
+  for(const k of DIM){
+    const m = MAX_ABS[k] || 1;
+    const raw = score[k]; // 可能为负
+    // 映射：-m -> 0，0 -> 50，+m -> 100
+    let p = ((raw + m) / (2*m)) * 100;
+    p = Math.max(0, Math.min(100, p));
+    out[k] = p;
+  }
+  return out;
+}
+
+/* ===== 雷达图绘制（Canvas） ===== */
+function drawRadar(canvas, values, labels){
+  const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+  const cssSize = Math.min(canvas.clientWidth || 360, 460);
+  const size = Math.floor(cssSize * dpr);
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0,0,size,size);
+
+  const cx = size/2;
+  const cy = size/2;
+  const r  = size * 0.36;
+
+  // 轻柔配色：不指定明显颜色，只用透明白
+  const grid = "rgba(255,255,255,.14)";
+  const axis = "rgba(255,255,255,.18)";
+  const text = "rgba(242,244,248,.82)";
+  const polyStroke = "rgba(255,255,255,.75)";
+  const polyFill = "rgba(255,255,255,.10)";
+
+  const n = labels.length;
+  const rings = 4;
+
+  // 背景环
+  ctx.lineWidth = 1 * dpr;
+  for(let i=1;i<=rings;i++){
+    const rr = (r * i) / rings;
+    ctx.beginPath();
+    for(let j=0;j<n;j++){
+      const ang = (-Math.PI/2) + (j * 2*Math.PI/n);
+      const x = cx + rr*Math.cos(ang);
+      const y = cy + rr*Math.sin(ang);
+      if(j===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = grid;
+    ctx.stroke();
+  }
+
+  // 轴线 + 标签
+  ctx.font = `${12*dpr}px system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif`;
+  ctx.fillStyle = text;
+
+  for(let j=0;j<n;j++){
+    const ang = (-Math.PI/2) + (j * 2*Math.PI/n);
+    const x2 = cx + r*Math.cos(ang);
+    const y2 = cy + r*Math.sin(ang);
+
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(x2,y2);
+    ctx.strokeStyle = axis;
+    ctx.stroke();
+
+    // 标签位置微调
+    const tx = cx + (r + size*0.06)*Math.cos(ang);
+    const ty = cy + (r + size*0.06)*Math.sin(ang);
+
+    const label = labels[j];
+    const w = ctx.measureText(label).width;
+
+    let dx = -w/2;
+    if(Math.cos(ang) > 0.35) dx = 0;
+    if(Math.cos(ang) < -0.35) dx = -w;
+
+    let dy = 4*dpr;
+    if(Math.sin(ang) > 0.35) dy = 12*dpr;
+    if(Math.sin(ang) < -0.35) dy = 0;
+
+    ctx.fillText(label, tx + dx, ty + dy);
+  }
+
+  // 多边形
+  ctx.beginPath();
+  for(let j=0;j<n;j++){
+    const ang = (-Math.PI/2) + (j * 2*Math.PI/n);
+    const p = Math.max(0, Math.min(1, (values[j]||0)/100));
+    const rr = r * p;
+    const x = cx + rr*Math.cos(ang);
+    const y = cy + rr*Math.sin(ang);
+    if(j===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = polyFill;
+  ctx.fill();
+  ctx.strokeStyle = polyStroke;
+  ctx.lineWidth = 2 * dpr;
+  ctx.stroke();
+
+  // 中心点
+  ctx.beginPath();
+  ctx.arc(cx,cy,3*dpr,0,Math.PI*2);
+  ctx.fillStyle = "rgba(255,255,255,.8)";
+  ctx.fill();
+}
+
+/* ===== UI ===== */
+function render(){
+  const app = document.getElementById("app");
+  if(idx < QUESTIONS.length){
+    const qu = QUESTIONS[idx];
+    const pct = Math.round((idx / QUESTIONS.length) * 100);
+
+    app.innerHTML = `
+      <div class="top">
+        <div>
+          <h1>测一测｜你最适合生活的城市（56城）</h1>
+          <div class="sub">跟着第一反应选就行。它更像一次轻量的生活方式匹配，不是标准答案。</div>
+        </div>
+        <span class="pill">${idx+1} / ${QUESTIONS.length}</span>
+      </div>
+
+      <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
+
+      <div class="q">${qu.t}</div>
+
+      <div class="opts">
+        <button class="opt" id="A">A. ${qu.a.text}</button>
+        <button class="opt" id="B">B. ${qu.b.text}</button>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="back" ${idx===0 ? "disabled":""}>上一步</button>
+        <button class="btn" id="restart">重来一次</button>
+      </div>
+
+      <div class="softNote">提示：娱乐向体验，结果用于参考。状态不同，答案也可能不同。</div>
+    `;
+
+    document.getElementById("A").onclick = () => { qu._picked="A"; addDelta(qu.a.d); idx++; render(); };
+    document.getElementById("B").onclick = () => { qu._picked="B"; addDelta(qu.b.d); idx++; render(); };
+
+    document.getElementById("back").onclick = () => {
+      idx = Math.max(0, idx - 1);
+      score = Object.fromEntries(DIM.map(k => [k, 0]));
+      for(let i=0;i<idx;i++){
+        const qi = QUESTIONS[i];
+        if(qi._picked === "A") addDelta(qi.a.d);
+        if(qi._picked === "B") addDelta(qi.b.d);
+      }
+      render();
+    };
+
+    document.getElementById("restart").onclick = () => {
+      idx = 0;
+      score = Object.fromEntries(DIM.map(k => [k, 0]));
+      QUESTIONS.forEach(x=>x._picked=null);
+      render();
+    };
+
+  } else {
+    const { best, sv } = pickCity();
+    const p3 = portrait3(sv);
+    const why = whyThisCity(best, sv);
+    const like3 = threeThings(best, sv);
+
+    const perc = toPercentByDim();
+    const labels = [
+      "节奏", "气候", "密度", "驱动",
+      "自然", "社交", "氛围", "成本"
+    ];
+    const values = [
+      perc.pace, perc.climate, perc.density, perc.drive,
+      perc.nature, perc.social, perc.aesthetics, perc.cost
+    ];
+
+    app.innerHTML = `
+      <div class="top">
+        <div>
+          <h1>结果出来了</h1>
+          <div class="sub">不是“哪里最好”，而是“哪里更适合你现在的生活方式”。</div>
+        </div>
+        <span class="pill">最终匹配</span>
+      </div>
+
+      <div class="section box">
+        <div class="k">最适合生活的城市</div>
+        <div class="cityName"><strong>${best.name}</strong></div>
+        ${asParagraphs(p3, false)}
+      </div>
+
+      <div class="section box">
+        <div class="k">你的画像分布</div>
+        <div class="radarWrap">
+          <div class="radarCanvasBox">
+            <canvas id="radar" aria-label="雷达图"></canvas>
+          </div>
+          <div class="radarLegend" id="legend">
+            ${legendRow("节奏", DIM_TEXT.pace, perc.pace)}
+            ${legendRow("气候", DIM_TEXT.climate, perc.climate)}
+            ${legendRow("密度", DIM_TEXT.density, perc.density)}
+            ${legendRow("驱动", DIM_TEXT.drive, perc.drive)}
+            ${legendRow("自然", DIM_TEXT.nature, perc.nature)}
+            ${legendRow("社交", DIM_TEXT.social, perc.social)}
+            ${legendRow("氛围", DIM_TEXT.aesthetics, perc.aesthetics)}
+            ${legendRow("成本", DIM_TEXT.cost, perc.cost)}
+            <div class="softNote" style="margin-top:10px;">
+              小提示：越靠右的百分比，越接近这一维度的“右侧偏好”。它不是好坏，只是倾向。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section grid">
+        <div class="box">
+          <div class="k">为什么会匹配到它</div>
+          ${asParagraphs(why, false)}
+        </div>
+
+        <div class="box">
+          <div class="k">在这里更容易喜欢上的三件事</div>
+          ${asParagraphs(like3, false)}
+        </div>
+      </div>
+
+      <div class="section box">
+        <div class="k">一段城市小片段</div>
+        ${asParagraphs(best.scene, true)}
+      </div>
+
+      <div class="section box">
+        <div class="k">关键词</div>
+        <div class="tags">
+          ${best.tags.map(t=>`<span class="tag">${t}</span>`).join("")}
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="restart2">再测一次</button>
+      </div>
+
+      <div class="softNote">
+        想分享的话，直接截图“画像分布 + 城市名”那一段就够好看。
+      </div>
+    `;
+
+    // 画雷达图（渲染后）
+    const canvas = document.getElementById("radar");
+    drawRadar(canvas, values, labels);
+
+    // 屏幕旋转/尺寸变化时重新画一次更清晰
+    window.addEventListener("resize", () => {
+      const c = document.getElementById("radar");
+      if(c) drawRadar(c, values, labels);
+    }, { passive:true });
+
+    document.getElementById("restart2").onclick = () => {
+      idx = 0;
+      score = Object.fromEntries(DIM.map(k => [k, 0]));
+      QUESTIONS.forEach(x=>x._picked=null);
+      render();
+    };
+  }
+}
+
+function legendRow(name, hintPair, pct){
+  const left = hintPair[0];
+  const right = hintPair[1];
+  const show = Math.round(pct);
+  const hint = `${left}  ↔  ${right}`;
+  return `
+    <div class="row">
+      <div>
+        <div class="dimName">${name}</div>
+        <div class="dimHint">${hint}</div>
+      </div>
+      <div class="pct">${show}%</div>
+    </div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
