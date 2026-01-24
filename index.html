@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>测一测｜你最适合生活的城市（56城）</title>
+
   <style>
     :root{
       --bg1:#0b1220;
@@ -176,15 +177,158 @@
     .dimName{ font-size:13px; color:rgba(242,244,248,.9); }
     .dimHint{ font-size:12px; color:var(--muted2); }
     .pct{ font-variant-numeric: tabular-nums; font-size:13px; color:rgba(242,244,248,.9); }
+
+    /* ===== 密码封面入口 ===== */
+    #gate .hint{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--muted2);
+      line-height:1.6;
+    }
+    #gate input{
+      width:100%;
+      padding:14px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.20);
+      color:var(--text);
+      font-size:15px;
+      outline:none;
+    }
+    .error{
+      color:#ff8b8b;
+      font-size:13px;
+      margin-top:10px;
+      display:none;
+    }
+    .smallActions{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+    .ghost{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      font-size:13px;
+      cursor:pointer;
+    }
+    .ghost:hover{ background:rgba(255,255,255,.09); }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="card" id="app"></div>
+
+    <!-- ===== 封面 / 密码入口（默认显示） ===== -->
+    <div class="card" id="gate">
+      <div class="top">
+        <div>
+          <h1>测一测｜你最适合生活的城市（56城）</h1>
+          <div class="sub">输入密码后进入内容。每次访问都需要输入（不缓存）。</div>
+        </div>
+        <span class="pill">需要密码</span>
+      </div>
+
+      <div class="progress"><div class="bar" style="width:100%"></div></div>
+
+      <div class="q">请输入访问密码</div>
+      <div class="opts">
+        <input id="pwd" type="password" placeholder="Password" autocomplete="off" />
+        <button class="opt" id="enter">进入</button>
+      </div>
+
+      <div class="error" id="err">密码错误</div>
+
+      <div class="smallActions">
+        <button class="ghost" id="clearBox">清空输入</button>
+        <button class="ghost" id="about">说明</button>
+      </div>
+
+      <div class="hint">
+        说明：这是静态网页的“门槛式”保护（提高复制难度），并非服务器级鉴权。<br>
+        如果你需要更强的防盗版，我在“说明”里给你方案。
+      </div>
+    </div>
+
+    <!-- ===== 测试内容（默认隐藏，验证后显示） ===== -->
+    <div class="card" id="app" style="display:none;"></div>
   </div>
 
 <script>
+/* ======================================================
+   入口密码逻辑（不缓存；不明文存密码）
+   - 你输入的密码会做 SHA-256
+   - 只跟“目标哈希”对比
+   ====================================================== */
+
+// ✅ city56 的 SHA-256（固定值；页面里不会出现明文 city56）
+const PASSWORD_SHA256 = "124efdf68402bdbd0e5e9a7601f0bfd0edd74eb026d10b4d97ee3cae4e283bd2";
+
+function showMain(){
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "";
+}
+
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  const arr = Array.from(new Uint8Array(buf));
+  return arr.map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+function fail(){
+  const err = document.getElementById("err");
+  err.style.display = "block";
+}
+
+document.getElementById("enter").onclick = check;
+document.getElementById("pwd").addEventListener("keydown", e=>{
+  if(e.key === "Enter") check();
+});
+document.getElementById("clearBox").onclick = ()=>{
+  document.getElementById("pwd").value = "";
+  document.getElementById("err").style.display = "none";
+  document.getElementById("pwd").focus();
+};
+document.getElementById("about").onclick = ()=>{
+  alert(
+`你现在使用的是“静态网页门槛保护”：
+- 优点：免费、部署快、不会把明文密码写在页面里（只写哈希）。
+- 局限：因为是静态站点，懂前端的人仍然可以复制 HTML/CSS/JS。
+
+更强的防盗版（你想要的话）：
+1) 域名锁（弱）：检查 location.host，不是你的域名就不显示内容（仍可被改）。
+2) 代码混淆（中）：把 JS 混淆压缩，提高抄袭成本。
+3) 真正安全（强）：需要“服务器校验密码”（例如 Cloudflare Worker / Vercel Function），
+   密码不下发到前端；前端每次请求服务端验证后才返回内容。`
+  );
+};
+
+async function check(){
+  const v = document.getElementById("pwd").value.trim();
+  document.getElementById("err").style.display = "none";
+  if(!v){ fail(); return; }
+  try{
+    const h = await sha256Hex(v);
+    if(h === PASSWORD_SHA256){
+      showMain();
+      render(); // 进入主应用
+    }else{
+      fail();
+    }
+  }catch(e){
+    fail();
+  }
+}
+
+/* ======================================================
+   下面开始：你的“56城测试”主逻辑
+   ====================================================== */
+
 /**
  * 8维度匹配（生活方式）
  * pace 节奏（慢 ↔ 快）
@@ -581,8 +725,6 @@ function computeMaxAbs(){
       }
     }
   }
-  // 这样会稍微偏大（因为A/B不可能同时选），但更稳更宽松
-  // 为了更贴近真实，把它再除以2
   for(const k of DIM) m[k] = Math.max(1, Math.round(m[k]/2));
   return m;
 }
@@ -616,7 +758,6 @@ function pickCity(){
   return { best, sv };
 }
 
-/* ===== 结果文案：保留“你”，但不会满屏 ===== */
 function tonePick(v, pos, neg, mid){
   if (v > 0.35) return pos;
   if (v < -0.35) return neg;
@@ -707,13 +848,11 @@ function asParagraphs(lines, soft=false){
   return `<div class="prose">${lines.map(x=>`<p class="${cls}">${x}</p>`).join("")}</div>`;
 }
 
-/* ===== 把每个维度分数映射到 0~100（方便画图、显示百分比） ===== */
 function toPercentByDim(){
   const out = {};
   for(const k of DIM){
     const m = MAX_ABS[k] || 1;
-    const raw = score[k]; // 可能为负
-    // 映射：-m -> 0，0 -> 50，+m -> 100
+    const raw = score[k];
     let p = ((raw + m) / (2*m)) * 100;
     p = Math.max(0, Math.min(100, p));
     out[k] = p;
@@ -721,7 +860,6 @@ function toPercentByDim(){
   return out;
 }
 
-/* ===== 雷达图绘制（Canvas） ===== */
 function drawRadar(canvas, values, labels){
   const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
   const cssSize = Math.min(canvas.clientWidth || 360, 460);
@@ -736,7 +874,6 @@ function drawRadar(canvas, values, labels){
   const cy = size/2;
   const r  = size * 0.36;
 
-  // 轻柔配色：不指定明显颜色，只用透明白
   const grid = "rgba(255,255,255,.14)";
   const axis = "rgba(255,255,255,.18)";
   const text = "rgba(242,244,248,.82)";
@@ -746,7 +883,6 @@ function drawRadar(canvas, values, labels){
   const n = labels.length;
   const rings = 4;
 
-  // 背景环
   ctx.lineWidth = 1 * dpr;
   for(let i=1;i<=rings;i++){
     const rr = (r * i) / rings;
@@ -762,7 +898,6 @@ function drawRadar(canvas, values, labels){
     ctx.stroke();
   }
 
-  // 轴线 + 标签
   ctx.font = `${12*dpr}px system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif`;
   ctx.fillStyle = text;
 
@@ -777,7 +912,6 @@ function drawRadar(canvas, values, labels){
     ctx.strokeStyle = axis;
     ctx.stroke();
 
-    // 标签位置微调
     const tx = cx + (r + size*0.06)*Math.cos(ang);
     const ty = cy + (r + size*0.06)*Math.sin(ang);
 
@@ -795,7 +929,6 @@ function drawRadar(canvas, values, labels){
     ctx.fillText(label, tx + dx, ty + dy);
   }
 
-  // 多边形
   ctx.beginPath();
   for(let j=0;j<n;j++){
     const ang = (-Math.PI/2) + (j * 2*Math.PI/n);
@@ -812,11 +945,26 @@ function drawRadar(canvas, values, labels){
   ctx.lineWidth = 2 * dpr;
   ctx.stroke();
 
-  // 中心点
   ctx.beginPath();
   ctx.arc(cx,cy,3*dpr,0,Math.PI*2);
   ctx.fillStyle = "rgba(255,255,255,.8)";
   ctx.fill();
+}
+
+function legendRow(name, hintPair, pct){
+  const left = hintPair[0];
+  const right = hintPair[1];
+  const show = Math.round(pct);
+  const hint = `${left}  ↔  ${right}`;
+  return `
+    <div class="row">
+      <div>
+        <div class="dimName">${name}</div>
+        <div class="dimHint">${hint}</div>
+      </div>
+      <div class="pct">${show}%</div>
+    </div>
+  `;
 }
 
 /* ===== UI ===== */
@@ -880,14 +1028,8 @@ function render(){
     const like3 = threeThings(best, sv);
 
     const perc = toPercentByDim();
-    const labels = [
-      "节奏", "气候", "密度", "驱动",
-      "自然", "社交", "氛围", "成本"
-    ];
-    const values = [
-      perc.pace, perc.climate, perc.density, perc.drive,
-      perc.nature, perc.social, perc.aesthetics, perc.cost
-    ];
+    const labels = ["节奏", "气候", "密度", "驱动", "自然", "社交", "氛围", "成本"];
+    const values = [perc.pace, perc.climate, perc.density, perc.drive, perc.nature, perc.social, perc.aesthetics, perc.cost];
 
     app.innerHTML = `
       <div class="top">
@@ -959,11 +1101,9 @@ function render(){
       </div>
     `;
 
-    // 画雷达图（渲染后）
     const canvas = document.getElementById("radar");
     drawRadar(canvas, values, labels);
 
-    // 屏幕旋转/尺寸变化时重新画一次更清晰
     window.addEventListener("resize", () => {
       const c = document.getElementById("radar");
       if(c) drawRadar(c, values, labels);
@@ -977,24 +1117,6 @@ function render(){
     };
   }
 }
-
-function legendRow(name, hintPair, pct){
-  const left = hintPair[0];
-  const right = hintPair[1];
-  const show = Math.round(pct);
-  const hint = `${left}  ↔  ${right}`;
-  return `
-    <div class="row">
-      <div>
-        <div class="dimName">${name}</div>
-        <div class="dimHint">${hint}</div>
-      </div>
-      <div class="pct">${show}%</div>
-    </div>
-  `;
-}
-
-render();
 </script>
 </body>
 </html>
