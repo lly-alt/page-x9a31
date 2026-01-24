@@ -247,10 +247,7 @@
         <button class="ghost" id="about">说明</button>
       </div>
 
-      <div class="hint">
-        说明：这是静态网页的“门槛式”保护（提高复制难度），并非服务器级鉴权。<br>
-        如果你需要更强的防盗版，我在“说明”里给你方案。
-      </div>
+
     </div>
 
     <!-- ===== 测试内容（默认隐藏，验证后显示） ===== -->
@@ -258,11 +255,6 @@
   </div>
 
 <script>
-/* ======================================================
-   入口密码逻辑（不缓存；不明文存密码）
-   - 你输入的密码会做 SHA-256
-   - 只跟“目标哈希”对比
-   ====================================================== */
 
 // ✅ city56 的 SHA-256（固定值；页面里不会出现明文 city56）
 const PASSWORD_SHA256 = "124efdf68402bdbd0e5e9a7601f0bfd0edd74eb026d10b4d97ee3cae4e283bd2";
@@ -292,19 +284,6 @@ document.getElementById("clearBox").onclick = ()=>{
   document.getElementById("pwd").value = "";
   document.getElementById("err").style.display = "none";
   document.getElementById("pwd").focus();
-};
-document.getElementById("about").onclick = ()=>{
-  alert(
-`你现在使用的是“静态网页门槛保护”：
-- 优点：免费、部署快、不会把明文密码写在页面里（只写哈希）。
-- 局限：因为是静态站点，懂前端的人仍然可以复制 HTML/CSS/JS。
-
-更强的防盗版（你想要的话）：
-1) 域名锁（弱）：检查 location.host，不是你的域名就不显示内容（仍可被改）。
-2) 代码混淆（中）：把 JS 混淆压缩，提高抄袭成本。
-3) 真正安全（强）：需要“服务器校验密码”（例如 Cloudflare Worker / Vercel Function），
-   密码不下发到前端；前端每次请求服务端验证后才返回内容。`
-  );
 };
 
 async function check(){
@@ -1119,4 +1098,5 @@ function render(){
 </script>
 </body>
 </html>
+
 
