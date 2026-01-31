@@ -255,6 +255,80 @@
   </div>
 
 <script>
+/* =========================
+   基础防盗（提高门槛版）
+   1) 仅允许在指定域名/路径下运行
+   2) 禁用右键/常见快捷键（可绕过，但能挡住大多数直接抄）
+   ========================= */
+
+(function protect(){
+  const ALLOW_HOSTS = [
+    "lly-alt.github.io",
+    "localhost",
+    "127.0.0.1"
+  ];
+
+  // 你的 GitHub Pages 仓库路径（必须写对）
+  const ALLOW_PATH_PREFIX = "/page-x9a31/";
+
+  const host = location.hostname;
+  const path = location.pathname;
+
+  const hostOk = ALLOW_HOSTS.includes(host);
+  const pathOk = path.startsWith(ALLOW_PATH_PREFIX) || host === "localhost" || host === "127.0.0.1";
+
+  // 如果不是官方域名/路径：直接替换页面内容（不加载你的测试数据）
+  if(!hostOk || !pathOk){
+    document.documentElement.innerHTML = `
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>无法访问</title>
+        <style>
+          body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+               font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+               background:#0b1220;color:#f2f4f8;padding:24px;}
+          .box{max-width:520px;border:1px solid rgba(255,255,255,.15);border-radius:18px;
+               padding:18px;background:rgba(255,255,255,.06);}
+          .t{font-size:18px;margin:0 0 10px;}
+          .p{opacity:.75;line-height:1.7;margin:0;}
+          a{color:#fff;}
+        </style>
+      </head>
+      <body>
+        <div class="box">
+          <p class="t">请从官方链接访问</p>
+          <p class="p">此页面仅在官方域名下提供访问。</p>
+          <p class="p" style="margin-top:10px;">
+            官方地址：<a href="https://lly-alt.github.io/page-x9a31/">https://lly-alt.github.io/page-x9a31/</a>
+          </p>
+        </div>
+      </body>
+    `;
+    return;
+  }
+
+  // 基础反复制（能挡住一部分“右键保存/复制粘贴”）
+  document.addEventListener("contextmenu", e => e.preventDefault());
+  document.addEventListener("copy", e => { e.preventDefault(); });
+  document.addEventListener("cut", e => { e.preventDefault(); });
+  document.addEventListener("dragstart", e => e.preventDefault());
+
+  // 常见快捷键拦截（F12 / Ctrl+Shift+I/J/C / Ctrl+U / Ctrl+S）
+  document.addEventListener("keydown", (e) => {
+    const k = e.key.toLowerCase();
+    const ctrl = e.ctrlKey || e.metaKey;
+    if(
+      k === "f12" ||
+      (ctrl && e.shiftKey && ["i","j","c"].includes(k)) ||
+      (ctrl && ["u","s"].includes(k))
+    ){
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
+})();
 
 // ✅ city56 的 SHA-256（固定值；页面里不会出现明文 city56）
 const PASSWORD_SHA256 = "124efdf68402bdbd0e5e9a7601f0bfd0edd74eb026d10b4d97ee3cae4e283bd2";
@@ -284,6 +358,9 @@ document.getElementById("clearBox").onclick = ()=>{
   document.getElementById("pwd").value = "";
   document.getElementById("err").style.display = "none";
   document.getElementById("pwd").focus();
+};
+document.getElementById("about").onclick = ()=>{
+  alert("提示：本页面仅供官方链接访问。请勿转载/二次发布。");
 };
 
 async function check(){
@@ -1098,6 +1175,7 @@ function render(){
 </script>
 </body>
 </html>
+
 
 
 
